@@ -34,17 +34,17 @@ run_scan() {
 }
 
 # 1) BASIC scans - every default test against every target
-run_scan dvwa          8080 basic
-run_scan misconfigured 8081 basic
-run_scan hardened      8082 basic
+run_scan dvwa          8081 basic
+run_scan misconfigured 8082 basic
+run_scan hardened      8083 basic
 
 # 2) TUNED scans - only configuration-related tests:
 #    1 = Interesting files, 2 = Misconfiguration / default files,
 #    3 = Information disclosure, b = Software identification
-run_scan dvwa          8080 tuned-config -Tuning 123b
-run_scan misconfigured 8081 tuned-config -Tuning 123b
-run_scan hardened      8082 tuned-config -Tuning 123b
+run_scan dvwa          8081 tuned-config -Tuning 123b
+run_scan misconfigured 8082 tuned-config -Tuning 123b
+run_scan hardened      8083 tuned-config -Tuning 123b
 
 # 3) TUNED scan - injection tests only, to see how far Nikto gets
 #    against a real vulnerable app:  4 = XSS/injection, 9 = SQL injection
-run_scan dvwa          8080 tuned-injection -Tuning 49
+run_scan dvwa          8081 tuned-injection -Tuning 49
