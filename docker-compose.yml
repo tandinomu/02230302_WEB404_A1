@@ -1,0 +1,34 @@
+# WEB404 Assignment 1 - Nikto vulnerability assessment lab
+# Start everything:  docker compose up -d --build
+# Stop everything:   docker compose down
+#
+# Every port is bound to 127.0.0.1 so the deliberately vulnerable
+# targets can only be reached from this machine, not from the network.
+
+services:
+
+  # Target A: DVWA - a realistic, intentionally vulnerable web app
+  dvwa:
+    image: vulnerables/web-dvwa
+    platform: linux/amd64          # image is Intel-only; runs emulated on Apple Silicon
+    container_name: target-a-dvwa
+    ports:
+      - "127.0.0.1:8080:80"
+
+  # Target B: our sample site, deliberately misconfigured
+  misconfigured:
+    build:
+      context: .
+      dockerfile: target-b-misconfigured/Dockerfile
+    container_name: target-b-misconfigured
+    ports:
+      - "127.0.0.1:8081:80"
+
+  # Target C: the same sample site, hardened
+  hardened:
+    build:
+      context: .
+      dockerfile: target-c-hardened/Dockerfile
+    container_name: target-c-hardened
+    ports:
+      - "127.0.0.1:8082:80"

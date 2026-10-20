@@ -1,0 +1,7 @@
+<?php
+// Leftover backup of a config file. Because it ends in .bak, Apache serves
+// it as plain text instead of running it, so anyone can read these values.
+// (Dummy credentials for the lab - not real.)
+$db_host = 'localhost';
+$db_user = 'webapp';
+$db_pass = 'Password123!';

@@ -1,0 +1,5 @@
+# Only site/ and the target-* folders are needed to build the images
+.git
+results
+screenshots
+*.md

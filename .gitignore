@@ -1,0 +1,10 @@
+# macOS Finder metadata
+.DS_Store
+
+# Editor / IDE folders
+.vscode/
+.idea/
+
+# Temporary and log files
+*.log
+*.tmp
