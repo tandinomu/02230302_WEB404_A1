@@ -1,0 +1,76 @@
+
+========== 1. Headers on B (misconfigured) ==========
+HTTP/1.1 200 OK
+Date: Wed, 21 Oct 2026 08:02:58 GMT
+Server: Apache/2.4.68 (Debian) PHP/8.2.34
+X-Powered-By: PHP/8.2.34
+Set-Cookie: PHPSESSID=75736293345381808996f263ecb52fa1; path=/
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Content-Type: text/html; charset=UTF-8
+
+
+========== 1. Headers on C (hardened) ==========
+HTTP/1.1 200 OK
+Date: Wed, 21 Oct 2026 08:02:58 GMT
+Server: Apache
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Content-Security-Policy: default-src 'self'; frame-ancestors 'none'
+Referrer-Policy: strict-origin-when-cross-origin
+Set-Cookie: PHPSESSID=b8c09356d6703911e537debb0d78c598; path=/; secure; HttpOnly; SameSite=Strict
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Content-Type: text/html; charset=UTF-8
+
+
+========== 2. TRACE method ==========
+B: 200
+C: 405
+
+========== 3. Junk method FOOBAR ==========
+B: 200
+C: 200
+
+========== 4. Directory listing and leftover files (B vs C) ==========
+/files/    B=200  C=403
+/backup/    B=200  C=404
+/phpinfo.php    B=200  C=404
+/test.php    B=200  C=404
+/index.php.bak    B=200  C=404
+/backup/config.php.bak    B=200  C=404
+
+========== 5. B /backup/config.php.bak ==========
+<?php
+// Leftover backup of a config file. Because it ends in .bak, Apache serves
+// it as plain text instead of running it, so anyone can read these values.
+// (Dummy credentials for the lab - not real.)
+$db_host = 'localhost';
+$db_user = 'webapp';
+$db_pass = 'Password123!';
+
+========== 6. Signature on a 404 page ==========
+B: <address>Apache/2.4.68 (Debian) PHP/8.2.34 Server at 127.0.0.1 Port 8082</address>
+C: 
+
+========== 7. DVWA /config/ listing ==========
+href="config.inc.php"
+href="config.inc.php.dist"
+
+========== 7. DVWA config.inc.php.dist (served as plain text) ==========
+# try changing the 'db_server' variable from localhost to 127.0.0.1. Fixes a problem due to sockets.
+#   WARNING: The database specified under db_database WILL BE ENTIRELY DELETED during setup.
+$_DVWA[ 'db_server' ]   = '127.0.0.1';
+$_DVWA[ 'db_database' ] = 'dvwa';
+$_DVWA[ 'db_user' ]     = 'root';
+$_DVWA[ 'db_password' ] = 'p@ssw0rd';
+$_DVWA[ 'db_port '] = '5432';
+
+========== 7. DVWA /.gitignore ==========
+config/config.inc.php
+Dockerfile
+
+# Vim swap files
+.*swp
