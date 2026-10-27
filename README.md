@@ -1,18 +1,39 @@
-# WEB404 Assignment 1 – Vulnerability Assessment with Nikto
+# WEB404 Assignment 1 - Vulnerability Assessment with Nikto
 
 | | |
 |---|---|
 | **Module** | WEB404 Secure Coding Practices |
-| **Student** | [Your Name] – 02230302 |
+| **Student** | 02230302 |
 | **Programme** | BE Software Engineering |
 | **Task** | Use Nikto to conduct a vulnerability assessment on a sample website and interpret the findings |
-| **Date** | 21 October 2026 |
 | **Tools** | Nikto 2.6.1, Docker 29.7 / Docker Compose 5.3, curl 8.7, macOS 26 (Apple Silicon) |
+
+---
+
+## Overview — what this assignment does and how
+
+This assignment uses **Nikto** to perform a vulnerability assessment of web
+servers and to interpret the findings.
+
+The approach has five stages:
+
+1. **Build an isolated lab** — three local targets in Docker: DVWA (a realistic
+   vulnerable app), a deliberately *misconfigured* site, and a *hardened* copy of
+   that same site.
+2. **Scan** each target with Nikto (full scans and tuned scans).
+3. **Verify** every important finding by hand with `curl` and the browser,
+   separating true positives, false positives and false negatives.
+4. **Interpret** each finding: rate its risk and map it to the OWASP Top 10.
+5. **Compare** the misconfigured site against the hardened one to prove the fixes
+   work.
+
+Everything runs locally, bound to `127.0.0.1` only.
 
 ---
 
 ## Table of contents
 
+0. [Overview](#overview--what-this-assignment-does-and-how)
 1. [Introduction](#1-introduction)
 2. [Lab setup and ethical considerations](#2-lab-setup-and-ethical-considerations)
 3. [Methodology](#3-methodology)
@@ -72,10 +93,10 @@
 
 ### 2.1 Ethical and legal considerations
 
-- **Only systems I own were scanned.** All three targets run as Docker containers on my own laptop. No external or public website was scanned.
+- **Only self-owned systems were scanned.** All three targets run as Docker containers on a local laptop. No external or public website was scanned.
 - **Scanning without permission is illegal and unethical.** Port and vulnerability scanning a system you do not own or have written permission to test can count as unauthorised access or an attempted attack under computer misuse laws, and breaks university IT policy. Nikto is noisy, so the owner would see it immediately.
 - **The vulnerable targets were never exposed to the network.** Every port is bound to `127.0.0.1` (localhost) in `docker-compose.yml`, so other devices on the Wi-Fi cannot reach DVWA or the misconfigured site.
-- **I checked what was listening before scanning.** Port 8080 was already used by a local Jenkins server (Jetty). The targets were moved to ports 8081–8083 so that no scan was accidentally pointed at a different service.
+- **Listening ports were checked before scanning.** Port 8080 was already used by a local Jenkins server (Jetty). The targets were moved to ports 8081–8083 so that no scan was accidentally pointed at a different service.
 - **No credentials are real.** The passwords in the leftover files are dummy values made for this lab.
 - **`-ask no`** was used so Nikto never sends any data back to its developers.
 
@@ -233,7 +254,7 @@ Main findings: outdated **Apache/2.4.25**, cookies `PHPSESSID` and `security` wi
 ![Nikto basic scan of misconfigured site](screenshots/06-nikto-basic-misconfigured.png)
 *Figure 6 – Nikto basic scan of Target B (19 items)*
 
-Nikto found every misconfiguration we planted **except** the `.bak` files and the missing `SameSite` cookie flag: full version banner, `X-Powered-By`, cookie without `HttpOnly`, TRACE enabled, missing headers, directory listing on `/files/` and `/backup/`, `phpinfo.php` and `test.php`.
+Nikto found every misconfiguration planted on the site **except** the `.bak` files and the missing `SameSite` cookie flag: full version banner, `X-Powered-By`, cookie without `HttpOnly`, TRACE enabled, missing headers, directory listing on `/files/` and `/backup/`, `phpinfo.php` and `test.php`.
 
 ![Nikto tuned scan](screenshots/08-nikto-tuned-config.png)
 *Figure 7 – Tuned scan `-Tuning 123b` of Target B: the same 19 items with 4,214 requests instead of 7,969*
@@ -258,7 +279,7 @@ Finding SQL injection or XSS in DVWA needs an application scanner (OWASP ZAP, Bu
 
 ## 5. Findings table
 
-Risk levels are my own rating, based on how easily the issue can be exploited and what an attacker gains. They are not Nikto's opinion (Nikto does not rate risk). OWASP categories use the **OWASP Top 10:2021**.
+Risk levels are an independent rating, based on how easily the issue can be exploited and what an attacker gains. They are not Nikto's opinion (Nikto does not rate risk). OWASP categories use the **OWASP Top 10:2021**.
 
 ### 5.1 Target B – Misconfigured site
 
