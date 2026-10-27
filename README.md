@@ -10,14 +10,14 @@
 
 ---
 
-## Overview — what this assignment does and how
+## Overview: what this assignment does and how
 
 This assignment uses **Nikto** to perform a vulnerability assessment of web
 servers and to interpret the findings.
 
 The approach has five stages:
 
-1. **Build an isolated lab** — three local targets in Docker: DVWA (a realistic
+1. **Build an isolated lab**: three local targets in Docker: DVWA (a realistic
    vulnerable app), a deliberately *misconfigured* site, and a *hardened* copy of
    that same site.
 2. **Scan** each target with Nikto (full scans and tuned scans).
@@ -33,7 +33,7 @@ Everything runs locally, bound to `127.0.0.1` only.
 
 ## Table of contents
 
-0. [Overview](#overview--what-this-assignment-does-and-how)
+0. [Overview](#overview-what-this-assignment-does-and-how)
 1. [Introduction](#1-introduction)
 2. [Lab setup and ethical considerations](#2-lab-setup-and-ethical-considerations)
 3. [Methodology](#3-methodology)
@@ -116,9 +116,9 @@ Everything runs locally, bound to `127.0.0.1` only.
 
 | Target | Purpose | Port | Image |
 |---|---|---|---|
-| **A – DVWA** | A realistic, deliberately vulnerable web application | 8081 | `vulnerables/web-dvwa` (amd64, emulated on Apple Silicon) |
-| **B – Misconfigured** | Our sample site with common misconfigurations | 8082 | built from `target-b-misconfigured/Dockerfile` |
-| **C – Hardened** | **The same site** with the misconfigurations fixed | 8083 | built from `target-c-hardened/Dockerfile` |
+| **A: DVWA** | A realistic, deliberately vulnerable web application | 8081 | `vulnerables/web-dvwa` (amd64, emulated on Apple Silicon) |
+| **B: Misconfigured** | Our sample site with common misconfigurations | 8082 | built from `target-b-misconfigured/Dockerfile` |
+| **C: Hardened** | **The same site** with the misconfigurations fixed | 8083 | built from `target-c-hardened/Dockerfile` |
 
 **Important design choice:** Targets B and C run **exactly the same website code** (`site/`). The only differences are the Apache and PHP configuration files and the leftover files. This proves that every finding on B comes from **configuration**, not from the code.
 
@@ -139,16 +139,16 @@ Everything runs locally, bound to `127.0.0.1` only.
 ### 2.4 Lab running
 
 ![All three containers running](screenshots/01-docker-compose-ps.png)
-*Figure 1 – `docker compose ps` showing all three targets bound to 127.0.0.1*
+*Figure 1: `docker compose ps` showing all three targets bound to 127.0.0.1*
 
 ![DVWA login page](screenshots/02-dvwa-browser.png)
-*Figure 2 – Target A: DVWA on http://127.0.0.1:8081*
+*Figure 2: Target A: DVWA on http://127.0.0.1:8081*
 
 ![Target B homepage](screenshots/03-target-b-browser.png)
-*Figure 3 – Target B (misconfigured) on http://127.0.0.1:8082*
+*Figure 3: Target B (misconfigured) on http://127.0.0.1:8082*
 
 ![Target C homepage](screenshots/04-target-c-browser.png)
-*Figure 4 – Target C (hardened) on http://127.0.0.1:8083. It looks identical to B in the browser; the differences are only visible in the HTTP responses.*
+*Figure 4: Target C (hardened) on http://127.0.0.1:8083. It looks identical to B in the browser; the differences are only visible in the HTTP responses.*
 
 ---
 
@@ -195,9 +195,9 @@ nikto -h 127.0.0.1 -p <port> -ask no -nointeractive -o results/<name>.htm -Forma
 | `2` | Misconfiguration / Default File | Default install files and bad settings (`/icons/README`, directory listing) |
 | `3` | Information Disclosure | Pages that reveal internal details (`phpinfo.php`, config files) |
 | `4` | Injection (XSS/Script/HTML) | Known scripts vulnerable to cross-site scripting / HTML injection |
-| `5` | Remote File Retrieval – Inside Web Root | Reading files inside the website folder that should be private |
+| `5` | Remote File Retrieval: Inside Web Root | Reading files inside the website folder that should be private |
 | `6` | Denial of Service | Requests that may crash or slow the server (**avoid on production**) |
-| `7` | Remote File Retrieval – Server Wide | Reading files anywhere on the server (e.g. `/etc/passwd` via path traversal) |
+| `7` | Remote File Retrieval: Server Wide | Reading files anywhere on the server (e.g. `/etc/passwd` via path traversal) |
 | `8` | Command Execution / Remote Shell | Known scripts that let an attacker run commands |
 | `9` | SQL Injection | Known scripts vulnerable to SQL injection |
 | `0` | File Upload | Known scripts that allow uploading files |
@@ -212,13 +212,13 @@ nikto -h 127.0.0.1 -p <port> -ask no -nointeractive -o results/<name>.htm -Forma
 
 | # | Target | Scan name | Options | Why |
 |---|---|---|---|---|
-| 1 | A – DVWA | basic | (default, all tests) | Baseline on a realistic vulnerable app |
-| 2 | B – Misconfigured | basic | (default) | Find all the "before" problems |
-| 3 | C – Hardened | basic | (default) | Check the "after" state |
-| 4 | A – DVWA | tuned-config | `-Tuning 123b` | Configuration-focused scan |
-| 5 | B – Misconfigured | tuned-config | `-Tuning 123b` | Does a focused scan find the same issues with fewer requests? |
-| 6 | C – Hardened | tuned-config | `-Tuning 123b` | Same, on the hardened site |
-| 7 | A – DVWA | tuned-injection | `-Tuning 49` | Can Nikto find DVWA's SQL injection and XSS? |
+| 1 | A: DVWA | basic | (default, all tests) | Baseline on a realistic vulnerable app |
+| 2 | B: Misconfigured | basic | (default) | Find all the "before" problems |
+| 3 | C: Hardened | basic | (default) | Check the "after" state |
+| 4 | A: DVWA | tuned-config | `-Tuning 123b` | Configuration-focused scan |
+| 5 | B: Misconfigured | tuned-config | `-Tuning 123b` | Does a focused scan find the same issues with fewer requests? |
+| 6 | C: Hardened | tuned-config | `-Tuning 123b` | Same, on the hardened site |
+| 7 | A: DVWA | tuned-injection | `-Tuning 49` | Can Nikto find DVWA's SQL injection and XSS? |
 
 `-Tuning 123b` was chosen because the target weaknesses are configuration problems: interesting files (1), misconfiguration (2), information disclosure (3) and software identification (b).
 
@@ -234,35 +234,35 @@ All raw output is in `results/` (`.txt` and `.htm` for every scan).
 
 | Scan | Requests | Items reported | Time |
 |---|---|---|---|
-| A – DVWA, basic | 7,973 | **16** | 4 s |
-| A – DVWA, tuned-config (`123b`) | 4,218 | 16 | ~3 s |
-| A – DVWA, tuned-injection (`49`) | 1,020 | 8 (**no injection findings**) | 1 s |
-| B – Misconfigured, basic | 7,969 | **19** | 4 s |
-| B – Misconfigured, tuned-config (`123b`) | 4,214 | 19 | 3 s |
-| C – Hardened, basic | 8,137 | **3** | 5 s |
-| C – Hardened, tuned-config (`123b`) | 4,292 | 3 | 2 s |
+| A: DVWA, basic | 7,973 | **16** | 4 s |
+| A: DVWA, tuned-config (`123b`) | 4,218 | 16 | ~3 s |
+| A: DVWA, tuned-injection (`49`) | 1,020 | 8 (**no injection findings**) | 1 s |
+| B: Misconfigured, basic | 7,969 | **19** | 4 s |
+| B: Misconfigured, tuned-config (`123b`) | 4,214 | 19 | 3 s |
+| C: Hardened, basic | 8,137 | **3** | 5 s |
+| C: Hardened, tuned-config (`123b`) | 4,292 | 3 | 2 s |
 
-### 4.1 Target A – DVWA
+### 4.1 Target A: DVWA
 
 ![Nikto basic scan of DVWA](screenshots/05-nikto-basic-dvwa.png)
-*Figure 5 – Nikto basic scan of DVWA (16 items)*
+*Figure 5: Nikto basic scan of DVWA (16 items)*
 
 Main findings: outdated **Apache/2.4.25**, cookies `PHPSESSID` and `security` without `HttpOnly`, five missing security headers, **directory listing on `/config/` and `/docs/`**, "configuration information may be available remotely" on `/config/`, `/.gitignore` readable, `/icons/README` default file, and `/login.php` identified as a login page.
 
-### 4.2 Target B – Misconfigured
+### 4.2 Target B: Misconfigured
 
 ![Nikto basic scan of misconfigured site](screenshots/06-nikto-basic-misconfigured.png)
-*Figure 6 – Nikto basic scan of Target B (19 items)*
+*Figure 6: Nikto basic scan of Target B (19 items)*
 
 Nikto found every misconfiguration planted on the site **except** the `.bak` files and the missing `SameSite` cookie flag: full version banner, `X-Powered-By`, cookie without `HttpOnly`, TRACE enabled, missing headers, directory listing on `/files/` and `/backup/`, `phpinfo.php` and `test.php`.
 
 ![Nikto tuned scan](screenshots/08-nikto-tuned-config.png)
-*Figure 7 – Tuned scan `-Tuning 123b` of Target B: the same 19 items with 4,214 requests instead of 7,969*
+*Figure 7: Tuned scan `-Tuning 123b` of Target B: the same 19 items with 4,214 requests instead of 7,969*
 
 **Effect of tuning:** the config-focused scan found **all 19 issues with 47% fewer requests**. Because every weakness on B is a configuration issue, the tests that were skipped (injection, command execution, etc.) had nothing to find. In a real engagement, tuning makes a scan faster, quieter and less likely to disturb the server, but you must choose the categories carefully or you will miss things.
 
 ![Nikto HTML report](screenshots/09-nikto-html-report.png)
-*Figure 8 – Nikto's HTML report (`results/misconfigured_basic.htm`)*
+*Figure 8: Nikto's HTML report (`results/misconfigured_basic.htm`)*
 
 ### 4.3 What Nikto did NOT find in DVWA (key limitation)
 
@@ -281,13 +281,13 @@ Finding SQL injection or XSS in DVWA needs an application scanner (OWASP ZAP, Bu
 
 Risk levels are an independent rating, based on how easily the issue can be exploited and what an attacker gains. They are not Nikto's opinion (Nikto does not rate risk). OWASP categories use the **OWASP Top 10:2021**.
 
-### 5.1 Target B – Misconfigured site
+### 5.1 Target B: Misconfigured site
 
 | # | Finding (Nikto) | What it means | Risk | OWASP Top 10:2021 | Recommended fix | Fixed on C? |
 |---|---|---|---|---|---|---|
 | B1 | `/backup/` directory listing exposes `config.php.bak` *(file itself found manually)* | A backup of a config file is served as plain text, revealing the **database username and password** | **High** | A05 Security Misconfiguration | Delete backup files from the web root; keep backups outside it; block `*.bak`, `*.old`, `*.swp` | ✅ |
-| B2 | `/phpinfo.php` – output from `phpinfo()` found | Shows PHP version, modules, server paths, kernel version and environment variables, making it easy for an attacker to plan an attack | **Medium** | A05 Security Misconfiguration | Delete `phpinfo.php` (and any debug pages) before deployment | ✅ |
-| B3 | `/files/` – directory indexing found (CWE-548) | Anyone can browse the folder and download every file, including "internal use only" documents | **Medium** | A01 Broken Access Control / A05 | `Options -Indexes`; add an index page; store private files outside the web root | ✅ (403) |
+| B2 | `/phpinfo.php`: output from `phpinfo()` found | Shows PHP version, modules, server paths, kernel version and environment variables, making it easy for an attacker to plan an attack | **Medium** | A05 Security Misconfiguration | Delete `phpinfo.php` (and any debug pages) before deployment | ✅ |
+| B3 | `/files/`: directory indexing found (CWE-548) | Anyone can browse the folder and download every file, including "internal use only" documents | **Medium** | A01 Broken Access Control / A05 | `Options -Indexes`; add an index page; store private files outside the web root | ✅ (403) |
 | B4 | Cookie `PHPSESSID` created without the `httponly` flag | JavaScript can read the session cookie, so an XSS bug elsewhere could steal sessions (session hijacking) | **Medium** | A07 Identification & Authentication Failures | `session.cookie_httponly = 1`, plus `cookie_secure = 1` and `cookie_samesite = Strict` | ✅ |
 | B5 | HTTP `TRACE` method active (XST) | The server echoes the request back, which can reveal headers/cookies (Cross-Site Tracing). Modern browsers block TRACE from scripts, so real impact is limited | **Low** | A05 Security Misconfiguration | `TraceEnable Off` | ✅ (405) |
 | B6 | `Server: Apache/2.4.68 (Debian) PHP/8.2.34` and on error pages | Exact versions help an attacker look up known vulnerabilities (reconnaissance) | **Low** | A05 Security Misconfiguration | `ServerTokens Prod`, `ServerSignature Off` | ✅ |
@@ -296,14 +296,14 @@ Risk levels are an independent rating, based on how easily the issue can be expl
 | B9 | Missing `X-Content-Type-Options` | The browser may "sniff" and run a file as a different type than intended | **Low** | A05 Security Misconfiguration | `X-Content-Type-Options: nosniff` | ✅ |
 | B10 | Missing `X-Frame-Options` (reported as "X-Frame-Options is deprecated") | The site can be put in an invisible frame on another site (clickjacking) | **Low** | A05 Security Misconfiguration | `X-Frame-Options: DENY` and CSP `frame-ancestors 'none'` | ✅ |
 | B11 | Missing `Referrer-Policy` | Full URLs (possibly with tokens) are sent to other sites in the `Referer` header | **Low** | A05 Security Misconfiguration | `Referrer-Policy: strict-origin-when-cross-origin` | ✅ |
-| B12 | `/test.php` – "might be interesting" | A leftover test script; harmless here (prints "test ok") but shows poor deployment hygiene | **Low** | A05 Security Misconfiguration | Remove test files before deployment | ✅ |
+| B12 | `/test.php`: "might be interesting" | A leftover test script; harmless here (prints "test ok") but shows poor deployment hygiene | **Low** | A05 Security Misconfiguration | Remove test files before deployment | ✅ |
 | B13 | `index.php.bak` *(missed by Nikto, found manually)* | The page's PHP **source code** can be downloaded and read | **Medium** | A05 Security Misconfiguration | Delete; block backup extensions | ✅ |
 | B14 | Missing `Permissions-Policy` | Browser features (camera, microphone, location) are not explicitly restricted | **Info** | A05 Security Misconfiguration | `Permissions-Policy: camera=(), microphone=(), geolocation=()` | ❌ (remaining) |
 | B15 | Missing `Strict-Transport-Security` | Only meaningful over HTTPS (see 6.2) | **Info (N/A)** | A02 Cryptographic Failures | Enable HTTPS, then add HSTS | ❌ (N/A on HTTP) |
 | B16 | PHP/8.2.34 "appears to be outdated" | Partly false positive (see 6.2) | **Info** | A06 Vulnerable & Outdated Components | Plan upgrade to a newer PHP branch before 8.2 end-of-life | ❌ |
-| B17 | "Valid response with junk HTTP methods" | False positive (see 6.2) | **Info** | – | None needed | ❌ |
+| B17 | "Valid response with junk HTTP methods" | False positive (see 6.2) | **Info** |: | None needed | ❌ |
 
-### 5.2 Target A – DVWA
+### 5.2 Target A: DVWA
 
 | # | Finding (Nikto) | What it means | Risk | OWASP Top 10:2021 | Recommended fix |
 |---|---|---|---|---|---|
@@ -313,8 +313,8 @@ Risk levels are an independent rating, based on how easily the issue can be expl
 | A4 | `/docs/` directory indexing | Documentation folder can be browsed | **Low** | A05 Security Misconfiguration | `Options -Indexes`; remove docs from production |
 | A5 | `/.gitignore` file found | Reveals file names the developers wanted to hide (`config/config.inc.php`) | **Low** | A05 Security Misconfiguration | Do not deploy `.git*` files; block dot-files in Apache |
 | A6 | Missing CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy | As B8–B11 | **Low** | A05 Security Misconfiguration | Add security headers |
-| A7 | `/icons/README` – Apache default file | Confirms Apache and that default files were not cleaned up | **Info** | A05 Security Misconfiguration | Remove the `/icons/` alias or the default file |
-| A8 | `/login.php` – admin login page found | Just tells an attacker where to log in; brute-force target | **Info** | A07 Identification & Authentication Failures | Rate limiting / account lockout, strong passwords, MFA |
+| A7 | `/icons/README`: Apache default file | Confirms Apache and that default files were not cleaned up | **Info** | A05 Security Misconfiguration | Remove the `/icons/` alias or the default file |
+| A8 | `/login.php`: admin login page found | Just tells an attacker where to log in; brute-force target | **Info** | A07 Identification & Authentication Failures | Rate limiting / account lockout, strong passwords, MFA |
 | A9 | *(not found by Nikto)* SQLi, XSS, command injection, CSRF … | DVWA's main vulnerabilities, completely missed | **High** (in reality) | A03 Injection, A01, A07 … | Requires application testing (ZAP/Burp/sqlmap) |
 
 > **Note on OWASP Top 10:2025:** In the 2025 edition, *Security Misconfiguration* moved up to **A02**, and *Vulnerable and Outdated Components* is part of **A03 Software Supply Chain Failures**. The mapping above uses the 2021 numbering because it is the version most widely referenced.
@@ -324,18 +324,18 @@ Risk levels are an independent rating, based on how easily the issue can be expl
 ## 6. Manual verification and false positives
 
 > Every finding from an automated scanner is a **claim**, not a fact.
-> - **True positive** – Nikto reported it and it is real.
-> - **False positive** – Nikto reported it but it is not a real problem.
-> - **False negative** – a real problem Nikto did not report.
+> - **True positive**, Nikto reported it and it is real.
+> - **False positive**, Nikto reported it but it is not a real problem.
+> - **False negative**, a real problem Nikto did not report.
 
 All checks are in `verify.sh`; output in `results/manual-verification.txt`.
 
 ### 6.1 Confirmed findings (true positives)
 
-**Headers – B vs C** (`curl -I`):
+**Headers, B vs C** (`curl -I`):
 
 ![curl headers comparison](screenshots/10-curl-headers-compare.png)
-*Figure 9 – `curl -I` on B (top) leaks versions and sets a cookie without flags; C (bottom) sends only `Server: Apache`, four security headers and a cookie with `secure; HttpOnly; SameSite=Strict`*
+*Figure 9: `curl -I` on B (top) leaks versions and sets a cookie without flags; C (bottom) sends only `Server: Apache`, four security headers and a cookie with `secure; HttpOnly; SameSite=Strict`*
 
 ```
 B:  Server: Apache/2.4.68 (Debian) PHP/8.2.34
@@ -355,27 +355,27 @@ C:  Server: Apache
 **Directory listing:**
 
 ![Directory listing on B](screenshots/11-directory-listing-b.png)
-*Figure 10 – "Index of /files" on Target B, listing internal documents and the full server version at the bottom*
+*Figure 10: "Index of /files" on Target B, listing internal documents and the full server version at the bottom*
 
 ![Directory listing blocked on C](screenshots/12-directory-listing-blocked-c.png)
-*Figure 11 – The same URL on Target C returns 403 Forbidden*
+*Figure 11: The same URL on Target C returns 403 Forbidden*
 
 **phpinfo():**
 
 ![phpinfo on B](screenshots/13-phpinfo-b.png)
-*Figure 12 – `phpinfo.php` on Target B reveals PHP 8.2.34, the Linux kernel version and the CPU architecture*
+*Figure 12: `phpinfo.php` on Target B reveals PHP 8.2.34, the Linux kernel version and the CPU architecture*
 
-**Leftover backup file (false negative – Nikto did not report this file):**
+**Leftover backup file (false negative, Nikto did not report this file):**
 
 ![Backup file on B](screenshots/14-backup-file-b.png)
-*Figure 13 – `curl` retrieves `backup/config.php.bak` with the database password*
+*Figure 13: `curl` retrieves `backup/config.php.bak` with the database password*
 
 When opened in a browser this file is **downloaded** rather than displayed. Apache picks the `Content-Type` from the file extension using `/etc/mime.types`, which maps `.bak` to `application/x-trash`. The browser cannot display that type, so it downloads it. **This does not make it safer**: the attacker still receives the whole file. The important point is that `.bak` is not `.php`, so Apache **does not run it through PHP** and sends the source code as-is.
 
 **DVWA configuration file:**
 
 ![DVWA config exposed](screenshots/15-dvwa-config-exposed.png)
-*Figure 14 – `config.inc.php.dist` in DVWA's listable `/config/` folder exposes the database root password*
+*Figure 14: `config.inc.php.dist` in DVWA's listable `/config/` folder exposes the database root password*
 
 Nikto only said "Configuration information **may** be available remotely". Manual verification showed it is a **High** risk: database credentials for the `root` account. The real `config.inc.php` returns 0 bytes because PHP executes it; the `.dist` copy is served as text. This shows why manual verification is needed to rate risk correctly.
 
@@ -396,8 +396,8 @@ Nikto only said "Configuration information **may** be available remotely". Manua
 
 | Missed issue | How it was found | Why Nikto missed it |
 |---|---|---|
-| `/index.php.bak` – source code readable | `curl` / knowledge of the site | Nikto only tests backup names in its database; it does not guess `.bak` versions of every file by default |
-| `/backup/config.php.bak` – DB password readable | Following the `/backup/` directory listing | Nikto reported the listing but did not open or analyse the files inside it |
+| `/index.php.bak`: source code readable | `curl` / knowledge of the site | Nikto only tests backup names in its database; it does not guess `.bak` versions of every file by default |
+| `/backup/config.php.bak`: DB password readable | Following the `/backup/` directory listing | Nikto reported the listing but did not open or analyse the files inside it |
 | Session cookie missing `Secure` and `SameSite` | `curl -I` | Nikto only checks for `HttpOnly` |
 | DVWA SQL injection, XSS, command injection, CSRF | Known DVWA design | Nikto does not crawl, log in or fuzz parameters (Section 4.3) |
 
@@ -406,12 +406,12 @@ Nikto only said "Configuration information **may** be available remotely". Manua
 ## 7. Before vs after: misconfigured vs hardened
 
 ![Nikto basic scan of hardened site](screenshots/07-nikto-basic-hardened.png)
-*Figure 15 – Nikto basic scan of Target C (hardened): only 3 items*
+*Figure 15: Nikto basic scan of Target C (hardened): only 3 items*
 
 ![Before vs after](screenshots/16-before-after.png)
-*Figure 16 – Before (Target B) vs after (Target C) Nikto results*
+*Figure 16: Before (Target B) vs after (Target C) Nikto results*
 
-| Check | Before – Target B | After – Target C | Fix that worked |
+| Check | Before: Target B | After: Target C | Fix that worked |
 |---|---|---|---|
 | Items reported by Nikto | **19** | **3** | All of the below |
 | `Server` header | `Apache/2.4.68 (Debian) PHP/8.2.34` | `Apache` | `ServerTokens Prod` |
@@ -419,8 +419,8 @@ Nikto only said "Configuration information **may** be available remotely". Manua
 | `X-Powered-By` | `PHP/8.2.34` | Not sent | `expose_php = Off` |
 | Cookie flags | none | `secure; HttpOnly; SameSite=Strict` | `php.ini` session settings |
 | TRACE | 200 (enabled) | 405 (blocked) | `TraceEnable Off` |
-| `/files/` listing | 200 – listing shown | 403 Forbidden | `Options -Indexes` |
-| `/backup/`, `phpinfo.php`, `test.php`, `*.bak` | 200 – exposed | 404 – not present | Leftover files not deployed |
+| `/files/` listing | 200: listing shown | 403 Forbidden | `Options -Indexes` |
+| `/backup/`, `phpinfo.php`, `test.php`, `*.bak` | 200: exposed | 404: not present | Leftover files not deployed |
 | X-Frame-Options | missing | `DENY` | `mod_headers` |
 | X-Content-Type-Options | missing | `nosniff` | `mod_headers` |
 | Content-Security-Policy | missing | `default-src 'self'; frame-ancestors 'none'` | `mod_headers` |
@@ -458,7 +458,7 @@ This assessment used Nikto 2.6.1 to scan three locally hosted targets: DVWA, a d
 
 **Key lessons:**
 1. Nikto is a fast, useful **first step** for finding server **misconfigurations** (OWASP A05) and **outdated components** (A06), but it is not a complete vulnerability assessment.
-2. **Every finding must be verified manually**, both to remove false positives and to rate the real risk (the DVWA `/config/` finding went from "may be available" to High).
+2. **Every finding must be verified manually**: both to remove false positives and to rate the real risk (the DVWA `/config/` finding went from "may be available" to High).
 3. Most of the problems found are fixed by **secure configuration and clean deployment**, not by code changes: `ServerTokens Prod`, `ServerSignature Off`, `-Indexes`, `TraceEnable Off`, security headers, cookie flags and removing leftover files.
 4. Application-level flaws require application-level tools such as **OWASP ZAP** or **Burp Suite**, plus manual testing and secure coding.
 5. Only scan systems you **own or have written permission** to test.
@@ -501,12 +501,12 @@ docker compose down
 
 ## 10. References
 
-- Nikto – https://github.com/sullo/nikto and https://cirt.net/Nikto2
-- OWASP Top 10:2021 – https://owasp.org/Top10/
-- OWASP Secure Headers Project – https://owasp.org/www-project-secure-headers/
-- OWASP Cross-Site Tracing – https://owasp.org/www-community/attacks/Cross_Site_Tracing
-- MDN – Set-Cookie (HttpOnly, Secure, SameSite) – https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
-- Apache HTTP Server documentation – `ServerTokens`, `ServerSignature`, `Options`, `TraceEnable`, `mod_headers` – https://httpd.apache.org/docs/2.4/
-- CWE-548: Exposure of Information Through Directory Listing – https://cwe.mitre.org/data/definitions/548.html
-- DVWA – https://github.com/digininja/DVWA
-- OWASP ZAP – https://www.zaproxy.org/ ; Burp Suite – https://portswigger.net/burp
+- Nikto, https://github.com/sullo/nikto and https://cirt.net/Nikto2
+- OWASP Top 10:2021, https://owasp.org/Top10/
+- OWASP Secure Headers Project, https://owasp.org/www-project-secure-headers/
+- OWASP Cross-Site Tracing, https://owasp.org/www-community/attacks/Cross_Site_Tracing
+- MDN, Set-Cookie (HttpOnly, Secure, SameSite), https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+- Apache HTTP Server documentation, `ServerTokens`, `ServerSignature`, `Options`, `TraceEnable`, `mod_headers`, https://httpd.apache.org/docs/2.4/
+- CWE-548: Exposure of Information Through Directory Listing, https://cwe.mitre.org/data/definitions/548.html
+- DVWA, https://github.com/digininja/DVWA
+- OWASP ZAP, https://www.zaproxy.org/ ; Burp Suite, https://portswigger.net/burp
