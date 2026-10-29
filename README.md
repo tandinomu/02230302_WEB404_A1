@@ -106,7 +106,17 @@ On B, the tuned scan found the **same 19 items with 47% fewer requests** (4,214 
 
 ## 5. Findings
 
-Nikto does not rate risk, so the ratings below are an independent judgement after manual checks, with the OWASP Top 10:2021 category in brackets.
+Nikto does not rate risk, so the ratings below are an independent judgement after manual checks.
+
+**How to read the tables:**
+
+- **Risk** shows how bad the problem is: High, Medium, Low or Info (just for information).
+- The code in brackets is the **OWASP Top 10:2021** category, a standard list of common web security problems:
+  - **A01** Broken access control: people can see things they should not.
+  - **A03** Injection: attacker input is run as code or as a database query.
+  - **A05** Security misconfiguration: unsafe server settings or leftover files.
+  - **A06** Outdated components: old software with known bugs.
+  - **A07** Authentication failures: weak login or session protection.
 
 ![Nikto basic scan of Target B](screenshots/06-nikto-basic-misconfigured.png)
 *Figure 6: Basic scan of Target B: full versions, TRACE, `phpinfo.php`, `/backup/`, `/files/`, `/test.php`; 7,969 requests, 19 items.*
@@ -114,22 +124,29 @@ Nikto does not rate risk, so the ratings below are an independent judgement afte
 ![Nikto basic scan of DVWA](screenshots/05-nikto-basic-dvwa.png)
 *Figure 7: Basic scan of DVWA: outdated Apache 2.4.25, cookies without `httponly`, `/config/` and `/docs/` listings, `/.gitignore`; 16 items.*
 
-| Finding | What it means | Risk | Fix |
+**Target B (misconfigured server):**
+
+| Finding | What it means in simple words | Risk | Fix |
 |---|---|---|---|
-| B: `/backup/` listing with `config.php.bak` | Anyone can download it and read the DB password | **High** (A05) | No backups in web root; `Options -Indexes` |
-| B: `/phpinfo.php` | Leaks PHP version, modules, paths and OS | **Medium** (A05) | Delete debug pages |
-| B: `/files/` listing | Internal files can be browsed and downloaded | **Medium** (A01) | `Options -Indexes` |
-| B: `PHPSESSID` without `HttpOnly` | XSS can steal the session | **Medium** (A07) | `HttpOnly`, `Secure`, `SameSite` |
-| B: TRACE enabled | Can help Cross Site Tracing | **Low** (A05) | `TraceEnable Off` |
-| B: Full versions in `Server` / `X-Powered-By` | Helps attackers find known bugs | **Low** (A05) | `ServerTokens Prod`, `ServerSignature Off`, `expose_php = Off` |
-| B: Missing CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy | Less browser protection against XSS, clickjacking, MIME sniffing | **Low** (A05) | Add headers with `mod_headers` |
-| B: `/test.php` | Leftover development file | **Low** (A05) | Remove before deploying |
-| A: `/config/` listing | Config file shows DB user `root` and its password | **High** (A05) | Disable listing; move config out of web root |
-| A: Apache/2.4.25 outdated | Old version with publicly known bugs | **High** (A06) | Update Apache |
-| A: `PHPSESSID` and `security` cookies without `HttpOnly` | Session theft via XSS | **Medium** (A07) | Set cookie flags |
-| A: `/docs/` listing, `/.gitignore`, `/icons/README` | Leak file names and project structure | **Low** (A05) | Remove or block; `-Indexes` |
-| A: `/login.php` found | Target for password guessing | Info (A07) | Rate limiting, lockout, strong passwords |
-| A: SQLi, XSS, command injection (**missed by Nikto**) | DVWA's real flaws | **High** (A03) | Test with ZAP or Burp; fix the code |
+| `/backup/` folder is open and holds `config.php.bak` | Anyone can download the backup file and read the database password. This is the worst problem on B. | **High** (A05) | Keep backups out of the website folder; turn off folder listing (`Options -Indexes`) |
+| `/phpinfo.php` page exists | A debug page that tells attackers the exact PHP version, modules, file paths and operating system | **Medium** (A05) | Delete debug pages |
+| `/files/` folder is open | Anyone can browse and download private files | **Medium** (A01) | Turn off folder listing (`Options -Indexes`) |
+| Session cookie (`PHPSESSID`) has no `HttpOnly` flag | If an attacker gets a script onto the page (XSS), the script can steal the user's login session | **Medium** (A07) | Add the `HttpOnly`, `Secure` and `SameSite` cookie flags |
+| TRACE method is turned on | An old debugging feature that can help an attack called Cross Site Tracing | **Low** (A05) | `TraceEnable Off` |
+| `Server` and `X-Powered-By` headers show exact versions | Attackers can look up known bugs for those versions | **Low** (A05) | `ServerTokens Prod`, `ServerSignature Off`, `expose_php = Off` |
+| Security headers missing (CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy) | The browser gets less help blocking attacks such as XSS, clickjacking and file type tricks | **Low** (A05) | Add the headers with `mod_headers` |
+| `/test.php` left behind | An old test file that should not be on a live site | **Low** (A05) | Remove it before deploying |
+
+**Target A (DVWA):**
+
+| Finding | What it means in simple words | Risk | Fix |
+|---|---|---|---|
+| `/config/` folder is open | The config file shows the database admin user (`root`) and its password | **High** (A05) | Turn off folder listing; move config files out of the website folder |
+| Apache 2.4.25 | An old version of the web server with publicly known security bugs | **High** (A06) | Update Apache |
+| `PHPSESSID` and `security` cookies have no `HttpOnly` flag | Same cookie problem as B: a script could steal the login session | **Medium** (A07) | Set the cookie flags |
+| `/docs/` folder, `/.gitignore` and `/icons/README` are visible | They reveal file names and how the project is organised | **Low** (A05) | Remove or block them; turn off folder listing |
+| `/login.php` found | A login page that attackers could try to guess passwords on | Info (A07) | Limit login attempts, lock accounts after failures, use strong passwords |
+| SQL injection, XSS and command injection (**not found by Nikto**) | DVWA's real, serious flaws, where attacker input is run as code | **High** (A03) | Test with ZAP or Burp; fix the code |
 
 Nikto also reported missing Permissions-Policy, missing HSTS and "PHP/8.2.34 outdated" on B. These are only informational (Section 6 explains why).
 
@@ -172,15 +189,27 @@ curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8082/files/
 ![phpinfo on B](screenshots/13-phpinfo-b.png)
 *Figure 12: `phpinfo.php` on B reveals PHP 8.2.34, the kernel, CPU type and config paths.*
 
-What the manual checks showed:
+What the manual checks showed. Two terms are used below:
 
-- **Missed `.bak` files (false negative):** Nikto reported `/backup/` but not the file inside it, and never found `index.php.bak`. Fetching `/backup/config.php.bak` returns raw source with `$db_user = 'webapp'` and `$db_pass = 'Password123!'`. This is the most serious issue on B.
-- **DVWA config was worse than reported:** Nikto only said config information "may be available". `curl -s http://127.0.0.1:8081/config/config.inc.php.dist | grep "db_"` shows `db_user = 'root'` and `db_password = 'p@ssw0rd'` in plain text.
-- **Junk HTTP methods (false positive):** `curl -X FOOBAR` returned 200 on both B and C, because Apache just ignores the unknown method and serves the normal page.
-- **HSTS missing (not applicable):** the lab uses plain HTTP, and browsers ignore HSTS over HTTP.
-- **PHP "outdated" (informational):** Nikto compares against the newest branch (8.5.8); an older supported branch is not a vulnerability by itself.
-- **Misleading and duplicate messages:** Nikto called X-Frame-Options "deprecated" when it was actually missing, and reported X-Content-Type-Options twice.
-- **Other misses:** missing `Secure` and `SameSite` cookie flags on B, and all of DVWA's injection and CSRF flaws, even with `-Tuning 49`.
+- **False negative:** a real problem that Nikto **missed**.
+- **False positive:** something Nikto **reported** that is not actually a problem.
+
+Results:
+
+1. **Nikto missed the `.bak` files (false negative).** Nikto saw the `/backup/` folder but did not report the file inside it, and never found `index.php.bak`. Opening `/backup/config.php.bak` by hand shows the database username (`webapp`) and password (`Password123!`). This is the most serious issue on B, and Nikto did not flag it.
+2. **Nikto played down the DVWA config leak.** Nikto only said config information "may be available". A manual check proved it is a definite leak: the command below prints the database admin user `root` and its password `p@ssw0rd` in plain text.
+
+   ```bash
+   curl -s http://127.0.0.1:8081/config/config.inc.php.dist | grep "db_"
+   ```
+
+3. **Junk HTTP methods (false positive).** Nikto said the server accepts made up request types. Sending one with `curl -X FOOBAR` returned 200 on both B and C, but only because Apache ignores the unknown method and serves the normal page. Nothing unsafe happens.
+4. **HSTS missing (does not apply).** HSTS tells browsers to always use HTTPS. The lab uses plain HTTP, and browsers ignore HSTS over HTTP, so this warning does not matter here.
+5. **"PHP is outdated" (only informational).** Nikto compares against the newest PHP version (8.5.8). An older version that still receives security updates is not a vulnerability by itself.
+6. **Confusing and repeated messages.** Nikto called X-Frame-Options "deprecated" when it was actually missing, and it reported X-Content-Type-Options twice.
+7. **Other things Nikto missed.** It did not report the missing `Secure` and `SameSite` cookie flags on B, or any of DVWA's injection and CSRF flaws, even with the injection tests turned on (`-Tuning 49`).
+
+**In short:** Nikto is good at spotting obvious server misconfigurations, but it misses some serious problems and reports some that are not real. Its results must be checked by hand, and code flaws need other tools such as ZAP or Burp.
 
 ![Backup file on B](screenshots/14-backup-file-b.png)
 *Figure 13: The raw backup file shows the database username and password (lab dummy values).*
